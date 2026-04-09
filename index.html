@@ -415,7 +415,7 @@
     <!-- 4. Aishwarya polaroid photo -->
     <div class="flex justify-center mb-5">
       <div class="aish-polaroid">
-        <img id="aish-polaroid-img" src="photos/aishwarya.jpg" alt="Aishwarya"
+        <img id="aish-polaroid-img" src="" alt=""
           onerror="this.style.display='none';document.getElementById('aish-polaroid-fallback').style.display='flex';" />
         <div id="aish-polaroid-fallback" class="aish-polaroid-fallback" style="display:none;">🌻</div>
       </div>
@@ -847,6 +847,17 @@ function showMessageCard(puzzle, won) {
     t.textContent = letter;
     tilesWrap.appendChild(t);
   });
+
+  // Set polaroid photo from JSON
+  const polaroidImg = document.getElementById('aish-polaroid-img');
+  const polaroidFallback = document.getElementById('aish-polaroid-fallback');
+  polaroidImg.style.display = 'block';
+  polaroidFallback.style.display = 'none';
+  polaroidImg.src = msg.photo || '';
+  if (!msg.photo) {
+    polaroidImg.style.display = 'none';
+    polaroidFallback.style.display = 'flex';
+  }
 
   document.getElementById('card-hint').textContent = puzzle.hint;
   document.getElementById('card-text').textContent = msg.text;
