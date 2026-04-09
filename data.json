@@ -1,7 +1,7 @@
 {
   "intro": {
-    "title": "We made something just for you, Aishwarya 💜",
-    "subtitle": "Solve each Wordle to unlock a farewell message from the team.",
+    "title": "We made something just for you, Aishwarya!",
+    "subtitle": "Solve each Wordle to unlock a farewell message from the team",
     "buttonText": "Let's go!"
   },
   "puzzles": [
@@ -12,7 +12,7 @@
       "message": {
         "from": "Anoop",
         "role": "",
-        "photo": "photos/teammate1.jpg",
+        "photo": "photos/1.png",
         "text": "Aishwarya, your attention to detail and the care you put into every word has made our product so much better. It's been a privilege to work alongside you — you've raised the bar for all of us. Wishing you all the best in your next adventure!"
       }
     },
@@ -23,7 +23,7 @@
       "message": {
         "from": "Aditya",
         "role": "Engineering Lead",
-        "photo": "photos/teammate2.jpg",
+        "photo": "photos/1.png",
         "text": "You made the complex feel simple, and the simple feel delightful. Thank you for always pushing us to think about the user's perspective. Your stories will echo in this product long after you've moved on!"
       }
     },
@@ -34,7 +34,7 @@
       "message": {
         "from": "Prishita",
         "role": "Product Manager",
-        "photo": "photos/teammate3.jpg",
+        "photo": "photos/1.png",
         "text": "Working with you redefined what 'good writing' means to me. You could take a tangled spec and turn it into something a five-year-old could understand. That's a rare gift. Miss you already!"
       }
     },
@@ -45,7 +45,7 @@
       "message": {
         "from": "Vibhore",
         "role": "UX Researcher",
-        "photo": "photos/teammate4.jpg",
+        "photo": "photos/1.png",
         "text": "Aishwarya, you've been the soul of our product's language. Every error message, every tooltip, every onboarding flow — you made them feel like they were written by a friend. That's your superpower. Go share it with the world!"
       }
     },
@@ -56,7 +56,7 @@
       "message": {
         "from": "Ishant",
         "role": "Head of Design",
-        "photo": "photos/teammate5.jpg",
+        "photo": "photos/1.png",
         "text": "Few people understand that words are design. You always did. You brought rigour, warmth, and a brilliant eye for nuance to everything you touched. This team is better for having had you. Onwards!"
       }
     },
@@ -67,7 +67,7 @@
       "message": {
         "from": "Johny",
         "role": "Design Ops",
-        "photo": "photos/teammate6.jpg",
+        "photo": "photos/1.png",
         "text": "You never shied away from saying 'I think we can do better here.' That courage made our work better every single time. Thank you for speaking up, pushing back with kindness, and always caring so much. You're a gem!"
       }
     },
@@ -78,7 +78,7 @@
       "message": {
         "from": "Veera",
         "role": "Frontend Engineer",
-        "photo": "photos/teammate7.jpg",
+        "photo": "photos/1.png",
         "text": "Aishwarya, I lost count of how many times your feedback saved me from shipping something embarrassing. Your ability to spot the tiny things that matter most is genuinely remarkable. Thank you for your patience with all my copy blunders!"
       }
     },
@@ -89,7 +89,7 @@
       "message": {
         "from": "Bhawna",
         "role": "Marketing Designer",
-        "photo": "photos/teammate8.jpg",
+        "photo": "photos/1.png",
         "text": "Wherever you went, things just felt a little warmer and brighter. Your enthusiasm is contagious, your kindness is real, and your talent is undeniable. The next team that gets you is incredibly lucky. We'll miss you so much!"
       }
     },
@@ -100,7 +100,7 @@
       "message": {
         "from": "Atharva",
         "role": "Content Strategist",
-        "photo": "photos/teammate9.jpg",
+        "photo": "photos/1.png",
         "text": "I've seen you take a completely broken brief and turn it into something beautiful without a single complaint. Your grace under pressure is something I'll always admire and aspire to. Thank you for being such a wonderful teammate!"
       }
     },
@@ -111,7 +111,7 @@
       "message": {
         "from": "Utkarsh",
         "role": "Chief of Staff",
-        "photo": "photos/teammate10.jpg",
+        "photo": "photos/1.png",
         "text": "Aishwarya, this team has been lucky to witness your growth — and we know this is only the beginning. You're going to bloom wherever you go. Thank you for everything. We're rooting for you, always. 💜"
       }
     }
