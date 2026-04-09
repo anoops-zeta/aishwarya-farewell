@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>A Farewell for Aishwarya 💜</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'serif'],
+            body: ['DM Sans', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FAF6EF',
+            sand: '#F2E8D9',
+            coral: '#E8614A',
+            gold: '#E8A820',
+            teal: '#2E9E8F',
+            'warm-grey': '#D4C9B8',
+            'tile-default': '#EDE8DF',
+            'tile-correct': '#4A9E6E',
+            'tile-present': '#E8A820',
+            'tile-absent': '#A89E8E',
+            'key-default': '#DDD5C8',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: #FAF6EF;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .font-display { font-family: 'Fraunces', serif; }
+
+    /* ── Screen management ── */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    /* ── Tile grid ── */
+    .tile {
+      width: 58px;
+      height: 58px;
+      border: 2px solid #D4C9B8;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #3D3530;
+      background: #EDE8DF;
+      transition: border-color 0.1s;
+      position: relative;
+      transform-style: preserve-3d;
+      user-select: none;
+    }
+
+    .tile.filled { border-color: #A89E8E; }
+    .tile.active-input { border-color: #3D3530; }
+
+    /* Flip animation */
+    @keyframes flip-in {
+      0%   { transform: rotateX(0deg); }
+      50%  { transform: rotateX(-90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+
+    .tile.reveal {
+      animation: flip-in 0.5s ease forwards;
+    }
+
+    .tile.correct  { background: #4A9E6E; border-color: #4A9E6E; color: #fff; }
+    .tile.present  { background: #E8A820; border-color: #E8A820; color: #fff; }
+    .tile.absent   { background: #A89E8E; border-color: #A89E8E; color: #fff; }
+
+    /* Pop on letter entry */
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .tile.pop { animation: pop 0.1s ease; }
+
+    /* Shake on invalid guess */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+    .row-shake { animation: shake 0.4s ease; }
+
+    /* Win bounce */
+    @keyframes bounce-up {
+      0%   { transform: translateY(0) scale(1); }
+      30%  { transform: translateY(-14px) scale(1.08); }
+      60%  { transform: translateY(-6px) scale(1.04); }
+      100% { transform: translateY(0) scale(1); }
+    }
+    .tile.win-bounce { animation: bounce-up 0.5s ease forwards; }
+
+    /* Keyboard keys */
+    .key {
+      height: 52px;
+      border-radius: 6px;
+      background: #DDD5C8;
+      color: #3D3530;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      border: none;
+      outline: none;
+      transition: background 0.2s, color 0.2s, transform 0.1s;
+      flex: 1;
+      min-width: 0;
+      touch-action: manipulation;
+    }
+    .key:active { transform: scale(0.94); }
+    .key.wide { flex: 1.6; font-size: 0.75rem; }
+    .key.correct  { background: #4A9E6E; color: #fff; }
+    .key.present  { background: #E8A820; color: #fff; }
+    .key.absent   { background: #A89E8E; color: #fff; }
+
+    /* Message card */
+    .message-card {
+      animation: slide-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Progress dots */
+    .progress-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #D4C9B8;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .progress-dot.done { background: #4A9E6E; }
+    .progress-dot.current { background: #E8A820; transform: scale(1.3); }
+
+    /* Photo circle */
+    .photo-circle {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #F2E8D9;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      background: #EDE8DF;
+    }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: #3D3530;
+      color: #FAF6EF;
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 1000;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Final screen stars */
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50%       { opacity: 1;   transform: scale(1.1); }
+    }
+    .star {
+      position: absolute;
+      color: #E8A820;
+      animation: twinkle var(--d, 2s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+
+    /* Aishwarya polaroid */
+    .aish-polaroid {
+      background: #fff;
+      padding: 8px 8px 28px;
+      box-shadow: 2px 4px 18px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.1);
+      transform: rotate(-2.5deg);
+      width: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .aish-polaroid img {
+      width: 144px;
+      height: 144px;
+      object-fit: cover;
+      display: block;
+    }
+    .aish-polaroid-fallback {
+      width: 144px;
+      height: 144px;
+      background: linear-gradient(135deg, #F2E8D9, #EDE8DF);
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+    }
+
+    /* Overlay for message card */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(61,53,48,0.55);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      animation: fade-in 0.25s ease;
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Polaroid card */
+    .polaroid {
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 32px 28px 40px;
+      animation: slide-up 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .emoji-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F2E8D9, #EDE8DF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      border: 3px solid #F2E8D9;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    /* Intro decorative blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.18;
+      filter: blur(40px);
+    }
+
+    @media (min-width: 640px) {
+      .tile { width: 64px; height: 64px; font-size: 1.8rem; }
+      .key  { height: 58px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     INTRO SCREEN
+══════════════════════════════════════════ -->
+<div id="screen-intro" class="screen active flex-col items-center justify-center relative overflow-hidden px-6 py-12 text-center" style="background: #FAF6EF;">
+  <!-- Decorative blobs -->
+  <div class="blob" style="width:300px;height:300px;background:#E8614A;top:-80px;right:-80px;"></div>
+  <div class="blob" style="width:250px;height:250px;background:#E8A820;bottom:-60px;left:-60px;"></div>
+  <div class="blob" style="width:200px;height:200px;background:#2E9E8F;top:40%;left:-80px;"></div>
+
+  <div class="relative z-10 max-w-sm mx-auto">
+    <!-- Decorative tiles row -->
+    <div class="flex justify-center gap-2 mb-8">
+      <div class="tile correct text-white" style="border-color:#4A9E6E;">A</div>
+      <div class="tile present text-white" style="border-color:#E8A820;">I</div>
+      <div class="tile absent text-white" style="border-color:#A89E8E;">S</div>
+      <div class="tile present text-white" style="border-color:#E8A820;">H</div>
+      <div class="tile correct text-white" style="border-color:#4A9E6E;">👋</div>
+    </div>
+
+    <h1 id="intro-title" class="font-display text-3xl font-bold leading-tight mb-4" style="color:#3D3530;"></h1>
+    <p id="intro-subtitle" class="text-base mb-10 leading-relaxed" style="color:#7A6E64;"></p>
+
+    <button id="intro-btn" class="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base transition-all hover:scale-105 active:scale-95" style="background:#E8614A;color:#fff;box-shadow:0 4px 20px rgba(232,97,74,0.35);">
+      <span id="intro-btn-text"></span>
+      <span>→</span>
+    </button>
+
+    <p class="mt-8 text-sm" style="color:#A89E8E;">10 puzzles · Each one unlocks a message 💌</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PUZZLE SCREEN
+══════════════════════════════════════════ -->
+<div id="screen-puzzle" class="screen flex-col" style="background:#FAF6EF;">
+  <!-- Top bar -->
+  <div class="flex items-center justify-between px-4 pt-4 pb-2" style="border-bottom: 1px solid #EDE8DF;">
+    <div class="font-display font-bold text-base" style="color:#3D3530;">For Aishwarya 💜</div>
+    <!-- Progress dots -->
+    <div id="progress-dots" class="flex items-center gap-1.5"></div>
+  </div>
+
+  <!-- Puzzle number + hint -->
+  <div class="px-4 pt-4 pb-2 text-center">
+    <p id="puzzle-number" class="text-sm font-semibold mb-1" style="color:#A89E8E; text-transform:uppercase; letter-spacing:0.1em;"></p>
+    <p id="puzzle-hint" class="text-md leading-snug font-medium" style="color:#7A6E64;max-width:320px;margin:0 auto;"></p>
+  </div>
+
+  <!-- Grid -->
+  <div class="flex-1 flex items-center justify-center py-2">
+    <div id="grid" class="flex flex-col gap-1.5"></div>
+  </div>
+
+  <!-- Keyboard -->
+  <div id="keyboard" class="px-2 pb-6 pt-2 flex flex-col gap-1.5" style="max-width:480px;margin:0 auto;width:100%;">
+    <div class="flex gap-1" id="kb-row-1"></div>
+    <div class="flex gap-1" id="kb-row-2"></div>
+    <div class="flex gap-1 items-center" id="kb-row-3"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FINALE SCREEN
+══════════════════════════════════════════ -->
+<div id="screen-finale" class="screen flex-col" style="background:#FAF6EF; overflow-y:auto;">
+  <!-- Stars (fixed behind everything) -->
+  <div id="stars-container" class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index:0;"></div>
+
+  <div class="relative z-10 w-full max-w-lg mx-auto px-4 pt-12 pb-16">
+
+    <!-- Hero header -->
+    <div class="text-center mb-10">
+      <div class="text-5xl mb-5" style="line-height:1;">🎉</div>
+      <h1 id="finale-title" class="font-display text-3xl font-bold mb-4 leading-tight" style="color:#3D3530;"></h1>
+      <p id="finale-message" class="text-base leading-relaxed mb-4" style="color:#5A4F48;"></p>
+      <p id="finale-signoff" class="font-display text-lg italic font-semibold" style="color:#E8614A;"></p>
+    </div>
+
+    <!-- Divider -->
+    <div class="mb-8" style="height:1px;background:#EDE8DF;"></div>
+
+    <!-- Message cards — populated by JS -->
+    <div id="finale-cards" class="flex flex-col gap-4"></div>
+
+    <!-- Footer -->
+    <p class="mt-12 text-xs text-center" style="color:#A89E8E;">Made with 💜 by ZetaUX</p>
+  </div>
+</div>
+
+<!-- Message card overlay (shared, managed by JS) -->
+<div id="message-overlay" class="overlay" style="display:none;">
+  <div class="polaroid">
+
+    <!-- 1. Word confirmation -->
+    <p class="text-xs font-semibold mb-2 text-center" style="color:#A89E8E; text-transform:uppercase; letter-spacing:0.1em;">The word was</p>
+    <div class="flex justify-center gap-1 mb-3" id="card-word-tiles"></div>
+
+    <!-- 2. Hint — the "why this word" bridge -->
+    <p id="card-hint" class="text-sm text-center italic mb-5 leading-snug" style="color:#A89E8E;"></p>
+
+    <!-- 3. Divider -->
+    <div class="mb-5" style="height:1px;background:#EDE8DF;"></div>
+
+    <!-- 4. Aishwarya polaroid photo -->
+    <div class="flex justify-center mb-5">
+      <div class="aish-polaroid">
+        <img id="aish-polaroid-img" src="photos/aishwarya.jpg" alt="Aishwarya"
+          onerror="this.style.display='none';document.getElementById('aish-polaroid-fallback').style.display='flex';" />
+        <div id="aish-polaroid-fallback" class="aish-polaroid-fallback" style="display:none;">🌻</div>
+      </div>
+    </div>
+
+    <!-- 5. Message + attribution -->
+    <p id="card-text" class="text-sm leading-relaxed" style="color:#5A4F48;"></p>
+    <p id="card-from" class="text-sm mt-3 mb-6" style="color:#A89E8E;"></p>
+
+    <!-- 6. Next / Finish button -->
+    <button id="card-next-btn" class="w-full py-3.5 rounded-full font-semibold text-base transition-all active:scale-95" style="background:#E8614A;color:#fff;">
+      Next puzzle →
+    </button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  HAPTICS
+// ══════════════════════════════════════════════════════
+const haptic = {
+  tap:    () => navigator.vibrate?.(8),
+  delete: () => navigator.vibrate?.(6),
+  error:  () => navigator.vibrate?.([40, 30, 40]),
+  win:    () => navigator.vibrate?.([30, 40, 60, 40, 100]),
+  next:   () => navigator.vibrate?.(12),
+};
+
+// ══════════════════════════════════════════════════════
+//  CONFETTI
+// ══════════════════════════════════════════════════════
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+let confettiPieces = [];
+let confettiRunning = false;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfetti() {
+  confettiPieces = [];
+  const colors = ['#E8614A', '#E8A820', '#4A9E6E', '#2E9E8F', '#F2E8D9', '#FAF6EF'];
+  for (let i = 0; i < 120; i++) {
+    confettiPieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.3 - 20,
+      r: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 3 + 2,
+      rot: Math.random() * Math.PI * 2,
+      rotV: (Math.random() - 0.5) * 0.2,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle',
+      w: Math.random() * 10 + 4,
+      h: Math.random() * 5 + 3,
+    });
+  }
+  if (!confettiRunning) {
+    confettiRunning = true;
+    animateConfetti();
+  }
+}
+
+function animateConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  confettiPieces = confettiPieces.filter(p => p.y < canvas.height + 20);
+  confettiPieces.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.rot += p.rotV;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle = p.color;
+    if (p.shape === 'rect') {
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+  if (confettiPieces.length > 0) {
+    requestAnimationFrame(animateConfetti);
+  } else {
+    confettiRunning = false;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ══════════════════════════════════════════════════════
+//  WORDLE LOGIC
+// ══════════════════════════════════════════════════════
+function evaluateGuess(guess, answer) {
+  // NYT-correct duplicate handling
+  const result = Array(5).fill('absent');
+  const answerArr = answer.split('');
+  const guessArr  = guess.split('');
+  const answerUsed = Array(5).fill(false);
+  const guessUsed  = Array(5).fill(false);
+
+  // First pass: correct
+  for (let i = 0; i < 5; i++) {
+    if (guessArr[i] === answerArr[i]) {
+      result[i] = 'correct';
+      answerUsed[i] = true;
+      guessUsed[i] = true;
+    }
+  }
+  // Second pass: present
+  for (let i = 0; i < 5; i++) {
+    if (guessUsed[i]) continue;
+    for (let j = 0; j < 5; j++) {
+      if (answerUsed[j]) continue;
+      if (guessArr[i] === answerArr[j]) {
+        result[i] = 'present';
+        answerUsed[j] = true;
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+// ══════════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════════
+let data = null;
+let puzzleIndex = 0;
+let currentGuess = '';
+let guesses = [];
+let keyStates = {};
+let gameOver = false;
+const MAX_GUESSES = 6;
+const WORD_LENGTH = 5;
+
+// ══════════════════════════════════════════════════════
+//  SCREENS
+// ══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════
+//  INTRO
+// ══════════════════════════════════════════════════════
+function renderIntro() {
+  document.getElementById('intro-title').textContent    = data.intro.title;
+  document.getElementById('intro-subtitle').textContent = data.intro.subtitle;
+  document.getElementById('intro-btn-text').textContent = data.intro.buttonText;
+  document.getElementById('intro-btn').onclick = () => {
+    haptic.next();
+    puzzleIndex = 0;
+    startPuzzle();
+  };
+}
+
+// ══════════════════════════════════════════════════════
+//  PROGRESS DOTS
+// ══════════════════════════════════════════════════════
+function renderProgress() {
+  const wrap = document.getElementById('progress-dots');
+  wrap.innerHTML = '';
+  data.puzzles.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    if (i < puzzleIndex) dot.classList.add('done');
+    else if (i === puzzleIndex) dot.classList.add('current');
+    wrap.appendChild(dot);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  GRID
+// ══════════════════════════════════════════════════════
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (let r = 0; r < MAX_GUESSES; r++) {
+    const row = document.createElement('div');
+    row.className = 'flex gap-1.5';
+    row.id = `row-${r}`;
+    for (let c = 0; c < WORD_LENGTH; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.id = `tile-${r}-${c}`;
+      row.appendChild(tile);
+    }
+    grid.appendChild(row);
+  }
+}
+
+function updateCurrentRow() {
+  const rowIdx = guesses.length;
+  for (let c = 0; c < WORD_LENGTH; c++) {
+    const tile = document.getElementById(`tile-${rowIdx}-${c}`);
+    tile.textContent = currentGuess[c] || '';
+    tile.className = 'tile' + (currentGuess[c] ? ' filled' : '') + (c === currentGuess.length - 1 && currentGuess.length > 0 ? '' : '');
+    if (c === currentGuess.length && currentGuess.length < WORD_LENGTH) {
+      // active cursor hint (subtle)
+    }
+  }
+  // Pop animation on last typed letter
+  if (currentGuess.length > 0) {
+    const tile = document.getElementById(`tile-${rowIdx}-${currentGuess.length - 1}`);
+    tile.classList.add('pop');
+    setTimeout(() => tile.classList.remove('pop'), 120);
+  }
+}
+
+function revealRow(rowIdx, result, callback) {
+  for (let i = 0; i < WORD_LENGTH; i++) {
+    const tile = document.getElementById(`tile-${rowIdx}-${i}`);
+    const tileResult = result[i]; // capture before any async delay
+    setTimeout(() => {
+      tile.classList.add('reveal');
+      setTimeout(() => {
+        tile.classList.remove('reveal');
+        tile.classList.add(tileResult);
+        tile.style.color = '#fff';
+      }, 250); // apply color at midpoint of the 500ms flip
+    }, i * 300); // stagger each tile by 300ms so flips don't overlap
+  }
+  const totalDelay = (WORD_LENGTH - 1) * 300 + 600;
+  if (callback) setTimeout(callback, totalDelay);
+}
+
+// ══════════════════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════════════════
+const KB_ROWS = [
+  ['Q','W','E','R','T','Y','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L'],
+  ['⌫','Z','X','C','V','B','N','M','ENTER'],
+];
+
+function buildKeyboard() {
+  KB_ROWS.forEach((row, ri) => {
+    const rowEl = document.getElementById(`kb-row-${ri + 1}`);
+    rowEl.innerHTML = '';
+    row.forEach(k => {
+      const btn = document.createElement('button');
+      btn.className = 'key' + (k === 'ENTER' || k === '⌫' ? ' wide' : '');
+      if (k === 'ENTER') btn.style.cssText = 'background:#E8614A;color:#fff;';
+      btn.textContent = k;
+      btn.dataset.key = k;
+      btn.addEventListener('pointerdown', e => { e.preventDefault(); handleKey(k); });
+      rowEl.appendChild(btn);
+    });
+  });
+}
+
+function updateKeyboard() {
+  document.querySelectorAll('.key').forEach(btn => {
+    const k = btn.dataset.key;
+    if (keyStates[k]) {
+      btn.className = 'key' + (['ENTER','⌫'].includes(k) ? ' wide' : '') + ' ' + keyStates[k];
+    }
+  });
+}
+
+function setKeyState(letter, state) {
+  const priority = { correct: 3, present: 2, absent: 1 };
+  if (!keyStates[letter] || (priority[state] || 0) > (priority[keyStates[letter]] || 0)) {
+    keyStates[letter] = state;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  PUZZLE START
+// ══════════════════════════════════════════════════════
+function startPuzzle() {
+  currentGuess = '';
+  guesses = [];
+  keyStates = {};
+  gameOver = false;
+
+  showScreen('screen-puzzle');
+  renderProgress();
+  buildGrid();
+  buildKeyboard();
+
+  const puzzle = data.puzzles[puzzleIndex];
+  document.getElementById('puzzle-number').textContent = `Puzzle ${puzzleIndex + 1} of ${data.puzzles.length}`;
+  document.getElementById('puzzle-hint').textContent = puzzle.hint;
+}
+
+// ══════════════════════════════════════════════════════
+//  INPUT
+// ══════════════════════════════════════════════════════
+function handleKey(key) {
+  if (gameOver) return;
+  if (key === '⌫' || key === 'BACKSPACE') {
+    if (currentGuess.length > 0) {
+      haptic.delete();
+      currentGuess = currentGuess.slice(0, -1);
+      updateCurrentRow();
+    }
+    return;
+  }
+  if (key === 'ENTER') {
+    submitGuess();
+    return;
+  }
+  if (/^[A-Z]$/i.test(key) && currentGuess.length < WORD_LENGTH) {
+    haptic.tap();
+    currentGuess += key.toUpperCase();
+    updateCurrentRow();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Backspace') handleKey('BACKSPACE');
+  else if (e.key === 'Enter') handleKey('ENTER');
+  else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
+});
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT GUESS
+// ══════════════════════════════════════════════════════
+function submitGuess() {
+  if (currentGuess.length < WORD_LENGTH) {
+    haptic.error();
+    shakeRow(guesses.length);
+    showToast('Not enough letters');
+    return;
+  }
+  haptic.tap();
+
+  const puzzle = data.puzzles[puzzleIndex];
+  const answer = puzzle.word.toUpperCase();
+  const guess  = currentGuess;
+  const result = evaluateGuess(guess, answer);
+
+  // Fill current row letters first
+  for (let c = 0; c < WORD_LENGTH; c++) {
+    document.getElementById(`tile-${guesses.length}-${c}`).textContent = guess[c];
+  }
+
+  guesses.push(guess);
+  currentGuess = '';
+
+  const rowIdx = guesses.length - 1;
+
+  revealRow(rowIdx, result, () => {
+    // Update key states after reveal
+    for (let c = 0; c < WORD_LENGTH; c++) {
+      setKeyState(guess[c], result[c]);
+    }
+    updateKeyboard();
+
+    const won = result.every(r => r === 'correct');
+    if (won) {
+      gameOver = true;
+      haptic.win();
+      triggerWinBounce(rowIdx);
+      setTimeout(() => {
+        launchConfetti();
+        showMessageCard(puzzle, true);
+      }, 600);
+    } else if (guesses.length >= MAX_GUESSES) {
+      gameOver = true;
+      haptic.error();
+      showToast(`The word was ${answer}`);
+      setTimeout(() => showMessageCard(puzzle, false), 1800);
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  ANIMATIONS
+// ══════════════════════════════════════════════════════
+function shakeRow(rowIdx) {
+  const row = document.getElementById(`row-${rowIdx}`);
+  row.classList.add('row-shake');
+  setTimeout(() => row.classList.remove('row-shake'), 400);
+}
+
+function triggerWinBounce(rowIdx) {
+  for (let c = 0; c < WORD_LENGTH; c++) {
+    const tile = document.getElementById(`tile-${rowIdx}-${c}`);
+    setTimeout(() => {
+      tile.classList.add('win-bounce');
+      setTimeout(() => tile.classList.remove('win-bounce'), 500);
+    }, c * 80);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  MESSAGE CARD
+// ══════════════════════════════════════════════════════
+function showMessageCard(puzzle, won) {
+  const overlay = document.getElementById('message-overlay');
+  const msg = puzzle.message;
+  const word = puzzle.word.toUpperCase();
+
+  // Solved word tiles
+  const tilesWrap = document.getElementById('card-word-tiles');
+  tilesWrap.innerHTML = '';
+  const result = won
+    ? Array(5).fill('correct')
+    : evaluateGuess(word, word); // all correct for reveal
+
+  word.split('').forEach((letter, i) => {
+    const t = document.createElement('div');
+    t.className = `tile correct`;
+    t.style.width = '34px';
+    t.style.height = '34px';
+    t.style.fontSize = '1rem';
+    t.textContent = letter;
+    tilesWrap.appendChild(t);
+  });
+
+  document.getElementById('card-hint').textContent = puzzle.hint;
+  document.getElementById('card-text').textContent = msg.text;
+  document.getElementById('card-from').textContent = `— ${msg.from}, ${msg.role}`;
+
+  const isLast = puzzleIndex >= data.puzzles.length - 1;
+  const nextBtn = document.getElementById('card-next-btn');
+  nextBtn.textContent = isLast ? '🎉 See the finale' : 'Next puzzle →';
+  nextBtn.onclick = () => {
+    haptic.next();
+    overlay.style.display = 'none';
+    puzzleIndex++;
+    if (puzzleIndex >= data.puzzles.length) {
+      showFinale();
+    } else {
+      startPuzzle();
+    }
+  };
+
+  overlay.style.display = 'flex';
+}
+
+// ══════════════════════════════════════════════════════
+//  FINALE
+// ══════════════════════════════════════════════════════
+function showFinale() {
+  showScreen('screen-finale');
+  document.getElementById('screen-finale').scrollTop = 0;
+
+  document.getElementById('finale-title').textContent   = data.finale.title;
+  document.getElementById('finale-message').textContent = data.finale.message;
+  document.getElementById('finale-signoff').textContent = data.finale.signoff;
+
+  // Stars
+  const starsWrap = document.getElementById('stars-container');
+  starsWrap.innerHTML = '';
+  const starSymbols = ['✦', '✧', '★', '✶', '✸'];
+  for (let i = 0; i < 18; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.textContent = starSymbols[Math.floor(Math.random() * starSymbols.length)];
+    s.style.fontSize = `${Math.random() * 14 + 10}px`;
+    s.style.top = `${Math.random() * 90}%`;
+    s.style.left = `${Math.random() * 90}%`;
+    s.style.setProperty('--d', `${(Math.random() * 2 + 1.5).toFixed(1)}s`);
+    s.style.setProperty('--delay', `${(Math.random() * 2).toFixed(1)}s`);
+    starsWrap.appendChild(s);
+  }
+
+  // Message cards
+  const cardsWrap = document.getElementById('finale-cards');
+  cardsWrap.innerHTML = '';
+  const rotations = [-2.5, 1.8, -1.5, 2.2, -2, 1.5, -1.8, 2.5, -1.2, 2];
+  data.puzzles.forEach((puzzle, idx) => {
+    const msg = puzzle.message;
+    const rot = rotations[idx % rotations.length];
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border-radius:16px;padding:20px 20px 22px;box-shadow:0 2px 16px rgba(0,0,0,0.08);';
+
+    // Polaroid photo
+    const photoWrap = document.createElement('div');
+    photoWrap.style.cssText = 'display:flex;justify-content:center;margin-bottom:18px;';
+
+    const polaroid = document.createElement('div');
+    polaroid.style.cssText = `background:#fff;padding:8px 8px 26px;box-shadow:2px 4px 16px rgba(0,0,0,0.15),0 1px 3px rgba(0,0,0,0.08);transform:rotate(${rot}deg);display:inline-block;`;
+
+    if (msg.photo) {
+      const img = document.createElement('img');
+      img.src = msg.photo;
+      img.alt = msg.from;
+      img.style.cssText = 'width:130px;height:130px;object-fit:cover;display:block;';
+      img.onerror = () => {
+        polaroid.innerHTML = '';
+        const fb = document.createElement('div');
+        fb.style.cssText = 'width:130px;height:130px;background:linear-gradient(135deg,#F2E8D9,#EDE8DF);display:flex;align-items:center;justify-content:center;font-size:3rem;';
+        fb.textContent = '🙂';
+        polaroid.appendChild(fb);
+      };
+      polaroid.appendChild(img);
+    } else {
+      const fb = document.createElement('div');
+      fb.style.cssText = 'width:130px;height:130px;background:linear-gradient(135deg,#F2E8D9,#EDE8DF);display:flex;align-items:center;justify-content:center;font-size:3rem;';
+      fb.textContent = '🙂';
+      polaroid.appendChild(fb);
+    }
+
+    photoWrap.appendChild(polaroid);
+
+    // Message
+    const msgText = document.createElement('p');
+    msgText.textContent = msg.text;
+    msgText.style.cssText = 'font-size:0.875rem;line-height:1.65;color:#5A4F48;margin:0 0 10px;';
+
+    // Attribution
+    const attribution = document.createElement('p');
+    attribution.textContent = `— ${msg.from}, ${msg.role}`;
+    attribution.style.cssText = 'font-size:0.78rem;color:#A89E8E;margin:0;';
+
+    card.appendChild(photoWrap);
+    card.appendChild(msgText);
+    card.appendChild(attribution);
+    cardsWrap.appendChild(card);
+  });
+
+  // Confetti
+  setTimeout(launchConfetti, 400);
+}
+
+function makeEmojiAvatar() {
+  const d = document.createElement('div');
+  d.style.cssText = 'width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#F2E8D9,#EDE8DF);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid #F2E8D9;';
+  d.textContent = '🙂';
+  return d;
+}
+
+// ══════════════════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════════════════
+async function boot() {
+  try {
+    const res = await fetch('data.json');
+    if (!res.ok) throw new Error('data.json not found');
+    data = await res.json();
+    renderIntro();
+    showScreen('screen-intro');
+  } catch (err) {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;text-align:center;font-family:sans-serif;">
+        <div>
+          <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
+          <h2 style="color:#3D3530;margin-bottom:8px;">Couldn't load data.json</h2>
+          <p style="color:#7A6E64;font-size:0.9rem;">Please serve this file from a local server.<br>Try: <code style="background:#EDE8DF;padding:2px 6px;border-radius:4px;">npx serve .</code></p>
+        </div>
+      </div>`;
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
