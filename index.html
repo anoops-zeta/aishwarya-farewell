@@ -219,13 +219,13 @@
       padding: 8px 8px 28px;
       box-shadow: 2px 4px 18px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.1);
       transform: rotate(-2.5deg);
-      width: 160px;
+      width: 200px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .aish-polaroid img {
-      width: 144px;
+      width: 200px;
       height: 144px;
       object-fit: cover;
       display: block;
@@ -346,9 +346,12 @@
 <div id="screen-puzzle" class="screen flex-col" style="background:#FAF6EF;">
   <!-- Top bar -->
   <div class="flex items-center justify-between px-4 pt-4 pb-2" style="border-bottom: 1px solid #EDE8DF;">
-    <div class="font-display font-bold text-base" style="color:#3D3530;">For Aishwarya</div>
-    <!-- Progress dots -->
-    <div id="progress-dots" class="flex items-center gap-1.5"></div>
+    <div id="secret-tap-zone" class="font-display font-bold text-base select-none cursor-default" style="color:#3D3530;">For Aishwarya</div>
+    <div class="flex items-center gap-3">
+      <button id="skip-btn" onclick="skipPuzzle()" class="text-xs font-semibold px-3 py-1 rounded-full transition-all active:scale-95" style="display:none;background:#F2E8D9;color:#A89E8E;">Skip</button>
+      <!-- Progress dots -->
+      <div id="progress-dots" class="flex items-center gap-1.5"></div>
+    </div>
   </div>
 
   <!-- Puzzle number + hint -->
@@ -388,7 +391,7 @@
     </div>
 
     <!-- Divider -->
-    <div class="mb-8" style="height:1px;background:#EDE8DF;"></div>
+    <div class="mb-8 mt-6 -mr-8 -ml-8" style="height:1px;background:#EDE8DF;"></div>
 
     <!-- Message cards — populated by JS -->
     <div id="finale-cards" class="flex flex-col gap-4"></div>
@@ -400,7 +403,7 @@
 
 <!-- Message card overlay (shared, managed by JS) -->
 <div id="message-overlay" class="overlay" style="display:none;">
-  <div class="polaroid">
+  <div class="polaroid overflow-hidden">
 
     <!-- 1. Word confirmation -->
     <p class="text-xs font-semibold mb-2 text-center" style="color:#A89E8E; text-transform:uppercase; letter-spacing:0.1em;">The word was</p>
@@ -410,7 +413,7 @@
     <p id="card-hint" class="text-sm text-center italic mb-5 leading-snug" style="color:#A89E8E;"></p>
 
     <!-- 3. Divider -->
-    <div class="mb-5" style="height:1px;background:#EDE8DF;"></div>
+    <div class="mb-8 mt-6 -mr-8 -ml-8" style="height:1px;background:#EDE8DF;"></div>
 
     <!-- 4. Aishwarya polaroid photo -->
     <div class="flex justify-center mb-5">
@@ -703,6 +706,33 @@ function setKeyState(letter, state) {
 }
 
 // ══════════════════════════════════════════════════════
+//  SECRET SKIP
+// ══════════════════════════════════════════════════════
+let secretTapCount = 0;
+let secretTapTimer = null;
+
+document.getElementById('secret-tap-zone').addEventListener('pointerdown', () => {
+  secretTapCount++;
+  clearTimeout(secretTapTimer);
+  secretTapTimer = setTimeout(() => { secretTapCount = 0; }, 600);
+  if (secretTapCount >= 3) {
+    secretTapCount = 0;
+    const btn = document.getElementById('skip-btn');
+    const showing = btn.style.display !== 'none';
+    btn.style.display = showing ? 'none' : 'inline-flex';
+    if (!showing) showToast('Skip unlocked 🤫');
+  }
+});
+
+function skipPuzzle() {
+  if (gameOver) return;
+  haptic.next();
+  gameOver = true;
+  document.getElementById('skip-btn').style.display = 'none';
+  showMessageCard(data.puzzles[puzzleIndex], false);
+}
+
+// ══════════════════════════════════════════════════════
 //  PUZZLE START
 // ══════════════════════════════════════════════════════
 function startPuzzle() {
@@ -710,6 +740,8 @@ function startPuzzle() {
   guesses = [];
   keyStates = {};
   gameOver = false;
+  document.getElementById('skip-btn').style.display = 'none';
+  secretTapCount = 0;
 
   showScreen('screen-puzzle');
   renderProgress();
@@ -842,6 +874,7 @@ function showMessageCard(puzzle, won) {
     const t = document.createElement('div');
     t.className = `tile correct`;
     t.style.width = '34px';
+    t.style.borderRadius = '4px';
     t.style.height = '34px';
     t.style.fontSize = '1rem';
     t.textContent = letter;
